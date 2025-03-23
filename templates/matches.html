@@ -29,7 +29,13 @@
                 <th>Heim</th>
                 <th>Gast</th>
                 <th>Ergebnis</th>
-                <!-- Add other match columns as needed -->
+                <th>Punkteregel</th>
+                <th>Exp. Heim</th>
+                <th>Exp. Unent.</th>
+                <th>Exp. Auswärts</th>
+                <th>Quote Heim</th>
+                <th>Quote Unent.</th>
+                <th>Quote Auswärts</th>
             </tr>
         </thead>
         <tbody>
@@ -39,7 +45,13 @@
                 <td>{{ match.heim }}</td>
                 <td>{{ match.gast }}</td>
                 <td>{{ match.ergebnis }}</td>
-                <!-- Add other match data as needed -->
+                <td>{{ match.punkteregel }}</td>
+                <td>{{ match.exp_home_points }}</td>
+                <td>{{ match.exp_draw_points }}</td>
+                <td>{{ match.exp_away_points }}</td>
+                <td>{{ match.odds_home }}</td>
+                <td>{{ match.odds_draw }}</td>
+                <td>{{ match.odds_away }}</td>
             </tr>
             {% endfor %}
         </tbody>

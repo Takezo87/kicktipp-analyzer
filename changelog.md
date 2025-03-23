@@ -47,3 +47,9 @@ Fixed the navigation link in base template to use the integrated matchday route 
 
 - Updated base.html template to use correct route for total view
 - Removed obsolete show_total endpoint reference 
+
+Enhanced Match Display Information
+Added display of point rules and expected points columns to provide more detailed match information.
+
+- Added punkteregel column to match table
+- Added expected points columns (home/draw/away) to match table 

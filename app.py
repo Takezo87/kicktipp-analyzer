@@ -56,7 +56,11 @@ def get_tipps_from_db(db_path="kicktipp.db"):
 def show_matches(matchday=None):
     # Get matches from database
     df = get_matches_from_db()
+    # round float to 2 decimal places
+    df = df.round(2)
     df_tipps = get_tipps_from_db()
+    # round float to 2 decimal places
+    df_tipps = df_tipps.round(2)
     
     if df is None or df.empty:
         return render_template('matches.html', 
