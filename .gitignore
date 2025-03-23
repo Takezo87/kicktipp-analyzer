@@ -2,12 +2,3 @@
 *.pyc
 *.db
 *.csv
-*.json
-*.html
-*.txt
-*.log
-*.log.*
-*.log.*.*
-*.log.*.*.*
-*.log.*.*.*.*
-*.log.*.*.*.*.*

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block navigation %}
+<div class="matchday-nav">
+    {% for day in matchdays %}
+    <a href="{{ url_for('show_matches', matchday=day) }}" {% if day==current_matchday %}class="active" {% endif %}>
+        Matchday {{ day }}
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="matches-container">
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% elif matches %}
+    <table class="matches-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Home</th>
+                <th>Away</th>
+                <th>Result</th>
+                <th>Points Rule</th>
+                <th>Odds (H/D/A)</th>
+                <th>Expected Points (H/D/A)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for match in matches %}
+            <tr>
+                <td>{{ match.termin }}</td>
+                <td>{{ match.heim }}</td>
+                <td>{{ match.gast }}</td>
+                <td>{{ match.ergebnis }}</td>
+                <td>{{ match.punkteregel }}</td>
+                <td>
+                    {{ "%.2f"|format(match.odds_home) }} /
+                    {{ "%.2f"|format(match.odds_draw) }} /
+                    {{ "%.2f"|format(match.odds_away) }}
+                </td>
+                <td>
+                    {{ "%.2f"|format(match.exp_home_points) }} /
+                    {{ "%.2f"|format(match.exp_draw_points) }} /
+                    {{ "%.2f"|format(match.exp_away_points) }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No matches found {% if current_matchday %}for matchday {{ current_matchday }}{% endif %}</p>
+    {% endif %}
+</div>
+{% endblock %}
