@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if error %}
+<div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+
+<h2>Gesamtpunkte</h2>
+
+{% if total_points %}
+<div class="total-points-section">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Member</th>
+                <th>Gesamtpunkte</th>
+                <th>Erwartete Punkte</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in total_points %}
+            <tr>
+                <td>{{ entry.member }}</td>
+                <td>{{ entry.points }}</td>
+                <td>{{ entry.expected }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+{% endblock %}

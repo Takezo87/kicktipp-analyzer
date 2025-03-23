@@ -2,29 +2,34 @@
 
 {% block navigation %}
 <div class="matchday-nav">
-    {% for day in matchdays %}
-    <a href="{{ url_for('show_matches', matchday=day) }}" {% if day==current_matchday %}class="active" {% endif %}>
-        Matchday {{ day }}
+    {% for md in matchdays %}
+    <a href="{{ url_for('show_matches', matchday=md) }}"
+        class="btn btn-{% if md == current_matchday %}primary{% else %}secondary{% endif %}">
+        {% if md == 'gesamt' %}Gesamt{% else %}Spieltag {{ md }}{% endif %}
     </a>
     {% endfor %}
 </div>
 {% endblock %}
 
 {% block content %}
-<div class="matches-container">
-    {% if error %}
-    <p class="error">{{ error }}</p>
-    {% elif matches %}
-    <table class="matches-table">
+
+{% if error %}
+<div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+
+{% if not is_total %}
+<!-- Display matches only for regular matchdays -->
+{% if matches %}
+<div class="matches-section">
+    <h3>Matches for Matchday {{ current_matchday }}</h3>
+    <table class="table">
         <thead>
             <tr>
-                <th>Date</th>
-                <th>Home</th>
-                <th>Away</th>
-                <th>Result</th>
-                <th>Points Rule</th>
-                <th>Odds (H/D/A)</th>
-                <th>Expected Points (H/D/A)</th>
+                <th>Termin</th>
+                <th>Heim</th>
+                <th>Gast</th>
+                <th>Ergebnis</th>
+                <!-- Add other match columns as needed -->
             </tr>
         </thead>
         <tbody>
@@ -34,23 +39,43 @@
                 <td>{{ match.heim }}</td>
                 <td>{{ match.gast }}</td>
                 <td>{{ match.ergebnis }}</td>
-                <td>{{ match.punkteregel }}</td>
-                <td>
-                    {{ "%.2f"|format(match.odds_home) }} /
-                    {{ "%.2f"|format(match.odds_draw) }} /
-                    {{ "%.2f"|format(match.odds_away) }}
-                </td>
-                <td>
-                    {{ "%.2f"|format(match.exp_home_points) }} /
-                    {{ "%.2f"|format(match.exp_draw_points) }} /
-                    {{ "%.2f"|format(match.exp_away_points) }}
-                </td>
+                <!-- Add other match data as needed -->
             </tr>
             {% endfor %}
         </tbody>
     </table>
-    {% else %}
-    <p>No matches found {% if current_matchday %}for matchday {{ current_matchday }}{% endif %}</p>
-    {% endif %}
 </div>
+{% endif %}
+{% endif %}
+
+{% if tipps %}
+<div class="tipps-section">
+    <h3>
+        {% if is_total %}
+        Gesamtpunkte
+        {% else %}
+        Tipps for Matchday {{ current_matchday }}
+        {% endif %}
+    </h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Member</th>
+                <th>{% if is_total %}Gesamtpunkte{% else %}Points{% endif %}</th>
+                <th>{% if is_total %}Erwartete Punkte{% else %}Expected{% endif %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tipp in tipps %}
+            <tr>
+                <td>{{ tipp.member }}</td>
+                <td>{{ tipp.points }}</td>
+                <td>{{ tipp.expected }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
 {% endblock %}

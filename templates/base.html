@@ -13,6 +13,9 @@
         <h1>Kicktipp Matches</h1>
         <nav>
             {% block navigation %}{% endblock %}
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('show_matches', matchday='gesamt') }}">Gesamtübersicht</a>
+            </li>
         </nav>
     </header>
     <main>

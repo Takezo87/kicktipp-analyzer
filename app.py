@@ -29,37 +29,80 @@ def get_matches_from_db(db_path="kicktipp.db"):
     except Exception as e:
         print(f"Error: {e}")
         return None
+    
+def get_tipps_from_db(db_path="kicktipp.db"):
+    """Fetch tipps from database"""
+    if not os.path.exists(db_path):
+        print(f"Database file not found: {db_path}")
+        return None
+
+    try:
+        conn = sqlite3.connect(db_path)
+        query = """
+        SELECT spieltag, member, points, expected FROM pivot_tipps
+        """
+        df = pd.read_sql_query(query, conn)
+        conn.close()
+        return df
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        return None
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
 
 @app.route('/')
-@app.route('/matchday/<int:matchday>')
+@app.route('/matchday/<matchday>')
 def show_matches(matchday=None):
     # Get matches from database
     df = get_matches_from_db()
+    df_tipps = get_tipps_from_db()
     
     if df is None or df.empty:
         return render_template('matches.html', 
                             matches=[], 
-                            matchdays=[], 
+                            matchdays=['gesamt'], 
                             current_matchday=None,
+                            tipps=[],
+                            is_total=False,
                             error="No matches found in database. Please ensure the database exists and contains data.")
     
     # Get unique matchdays for navigation
-    matchdays = sorted(df['spieltag'].unique())
+    matchdays = ['gesamt'] + [str(x) for x in sorted(df['spieltag'].unique())]
     
-    # If no matchday specified, use the latest one
-    if matchday is None and len(matchdays) > 0:
-        matchday = matchdays[-1]
+    # If no matchday specified, use 'gesamt'
+    if matchday is None:
+        matchday = 'gesamt'
     
-    # Filter matches for selected matchday
-    if matchday in matchdays:
-        matches = df[df['spieltag'] == matchday].to_dict('records')
-    else:
+    # Handle 'gesamt' view
+    if matchday == 'gesamt':
         matches = []
+        if df_tipps is not None and not df_tipps.empty:
+            tipps = df_tipps.groupby('member').agg({
+                'points': 'sum',
+                'expected': 'sum'
+            }).round(2).reset_index()
+            tipps = tipps.sort_values('points', ascending=False).to_dict('records')
+        else:
+            tipps = []
+        is_total = True
+    # Handle regular matchday view
+    else:
+        try:
+            matchday_int = int(matchday)
+            matches = df[df['spieltag'] == matchday_int].to_dict('records')
+            tipps = df_tipps[df_tipps['spieltag'] == matchday_int].to_dict('records') if df_tipps is not None else []
+        except (ValueError, TypeError):
+            matches = []
+            tipps = []
+        is_total = False
     
     return render_template('matches.html', 
                         matches=matches, 
                         matchdays=matchdays, 
-                        current_matchday=matchday)
+                        current_matchday=matchday,
+                        tipps=tipps,
+                        is_total=is_total)
 
 if __name__ == '__main__':
     app.run(debug=True) 
