@@ -21,7 +21,7 @@
 <!-- Display matches only for regular matchdays -->
 {% if matches %}
 <div class="matches-section">
-    <h3>Matches for Matchday {{ current_matchday }}</h3>
+    <h3>Spiele für Spieltag {{ current_matchday }}</h3>
     <table class="table">
         <thead>
             <tr>
@@ -30,12 +30,12 @@
                 <th>Gast</th>
                 <th>Ergebnis</th>
                 <th>Punkteregel</th>
-                <th>Exp. Heim</th>
-                <th>Exp. Unent.</th>
-                <th>Exp. Auswärts</th>
-                <th>Quote Heim</th>
-                <th>Quote Unent.</th>
-                <th>Quote Auswärts</th>
+                <th>xP 1</th>
+                <th>xP X</th>
+                <th>xP 2</th>
+                <th>% 1</th>
+                <th>% X</th>
+                <th>% 2</th>
             </tr>
         </thead>
         <tbody>
@@ -49,9 +49,12 @@
                 <td>{{ match.exp_home_points }}</td>
                 <td>{{ match.exp_draw_points }}</td>
                 <td>{{ match.exp_away_points }}</td>
-                <td>{{ match.odds_home }}</td>
-                <td>{{ match.odds_draw }}</td>
-                <td>{{ match.odds_away }}</td>
+                <td>{{ ((1/match.odds_home)/((1/match.odds_home)+(1/match.odds_draw)+(1/match.odds_away)) *
+                    100)|round(1) }}%</td>
+                <td>{{ ((1/match.odds_draw)/((1/match.odds_home)+(1/match.odds_draw)+(1/match.odds_away)) *
+                    100)|round(1) }}%</td>
+                <td>{{ ((1/match.odds_away)/((1/match.odds_home)+(1/match.odds_draw)+(1/match.odds_away)) *
+                    100)|round(1) }}%</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -66,15 +69,18 @@
         {% if is_total %}
         Gesamtpunkte
         {% else %}
-        Tipps for Matchday {{ current_matchday }}
+        Tipps für Spieltag {{ current_matchday }}
         {% endif %}
     </h3>
     <table class="table">
         <thead>
             <tr>
-                <th>Member</th>
-                <th>{% if is_total %}Gesamtpunkte{% else %}Points{% endif %}</th>
-                <th>{% if is_total %}Erwartete Punkte{% else %}Expected{% endif %}</th>
+                <th>Name</th>
+                <th>{% if is_total %}Gesamtpunkte{% else %}Punkte{% endif %}</th>
+                <th>Extra</th>
+                <th>{% if is_total %}Erwartete Punkte{% else %}xPunkte{% endif %}</th>
+                <th>Tendenz</th>
+                <th>Glücksfaktor</th>
             </tr>
         </thead>
         <tbody>
@@ -82,7 +88,14 @@
             <tr>
                 <td>{{ tipp.member }}</td>
                 <td>{{ tipp.points }}</td>
+                <td>{{ tipp.extra }}</td>
                 <td>{{ tipp.expected }}</td>
+                <td
+                    class="{% if tipp.tendenz > tipp.expected %}positive{% elif tipp.tendenz < tipp.expected %}negative{% endif %}">
+                    {{
+                    tipp.tendenz }}</td>
+                <td class="{% if tipp.gluecksfaktor > 1 %}positive{% elif tipp.gluecksfaktor < 1 %}negative{% endif %}">
+                    {{ tipp.gluecksfaktor }}</td>
             </tr>
             {% endfor %}
         </tbody>

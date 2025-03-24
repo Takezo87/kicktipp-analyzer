@@ -12,9 +12,12 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Member</th>
+                <th>Name</th>
                 <th>Gesamtpunkte</th>
-                <th>Erwartete Punkte</th>
+                <th>Extra</th>
+                <th>Tendenz</th>
+                <th>xPunkte</th>
+                <th>Gluecksfaktor</th>
             </tr>
         </thead>
         <tbody>
@@ -22,7 +25,10 @@
             <tr>
                 <td>{{ entry.member }}</td>
                 <td>{{ entry.points }}</td>
+                <td>{{ entry.extra }}</td>
+                <td>{{ entry.tendenz }}</td>
                 <td>{{ entry.expected }}</td>
+                <td>{{ entry.gluecksfaktor }}</td>
             </tr>
             {% endfor %}
         </tbody>

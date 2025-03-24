@@ -39,7 +39,7 @@ def get_tipps_from_db(db_path="kicktipp.db"):
     try:
         conn = sqlite3.connect(db_path)
         query = """
-        SELECT spieltag, member, points, expected FROM pivot_tipps
+        SELECT spieltag, member, points, expected, extra FROM pivot_tipps
         """
         df = pd.read_sql_query(query, conn)
         conn.close()
@@ -59,6 +59,10 @@ def show_matches(matchday=None):
     # round float to 2 decimal places
     df = df.round(2)
     df_tipps = get_tipps_from_db()
+    # round float to 2 decimal places
+    df_tipps = df_tipps.round(2)
+    df_tipps['tendenz'] = df_tipps['points'] - df_tipps['extra']
+    df_tipps['gluecksfaktor'] = df_tipps['tendenz'] / df_tipps['expected']
     # round float to 2 decimal places
     df_tipps = df_tipps.round(2)
     
@@ -84,8 +88,13 @@ def show_matches(matchday=None):
         if df_tipps is not None and not df_tipps.empty:
             tipps = df_tipps.groupby('member').agg({
                 'points': 'sum',
-                'expected': 'sum'
+                'expected': 'sum',
+                'extra': 'sum'
             }).round(2).reset_index()
+            # Calculate tendenz and gluecksfaktor for aggregated data
+            tipps['tendenz'] = tipps['points'] - tipps['extra']
+            tipps['gluecksfaktor'] = tipps['tendenz'] / tipps['expected']
+            tipps = tipps.round(2)
             tipps = tipps.sort_values('points', ascending=False).to_dict('records')
         else:
             tipps = []

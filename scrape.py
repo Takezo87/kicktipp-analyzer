@@ -34,6 +34,41 @@ def get_html_content(season_id: int, matchday: int):
     response = httpx.get(url)
     return response.text
 
+def extra_punkte(ergebnis: str, tipp: str) -> int:
+    """
+    Calculate bonus points based on match result and prediction.
+    Returns:
+        - 2 points for exact match
+        - 1 point for correct goal difference
+        - 0 points for draws or incorrect predictions
+    """
+    if not tipp or not isinstance(tipp, str):
+        return None
+    
+    try:
+        # Parse result and prediction
+        ergebnis_home, ergebnis_away = map(int, ergebnis.split(':'))
+        tipp_home, tipp_away = map(int, tipp.split(':'))
+        
+        # Calculate goal differences
+        ergebnis_diff = ergebnis_home - ergebnis_away
+        tipp_diff = tipp_home - tipp_away
+        if tipp_diff == 0:
+            return 0
+        
+        # Exact match
+        if ergebnis_home == tipp_home and ergebnis_away == tipp_away:
+            return 2
+        
+        # Correct goal difference
+        if ergebnis_diff == tipp_diff:
+            return 1
+        
+        return 0
+        
+    except (ValueError, AttributeError):
+        return None
+
 def _get_tendency_from_tipp(tipp: str) -> str:
     """Helper function to determine tendency (1, X, 2) from a tipp string."""
     if not tipp or not isinstance(tipp, str):
@@ -194,6 +229,20 @@ def combine_match_table_and_tipps(match_table: pd.DataFrame, tipps: pd.DataFrame
     for column in tipps.columns:
         result_df[column] = tipps[column]
     
+    # Get member names by finding columns ending with '_tipp'
+    member_cols = get_members(tipps)
+    
+    # Calculate extra points for each member
+    for member in member_cols:
+        tipp_col = f"{member}_tipp"
+        extra_col = f"{member}_extra"
+        
+        # Calculate extra points using the extra_punkte function
+        result_df[extra_col] = result_df.apply(
+            lambda row: extra_punkte(row['ergebnis'], row[tipp_col]), 
+            axis=1
+        )
+    
     return result_df
 
 def scrape_matchdays(season_id: int, start_matchday: int, end_matchday: int) -> pd.DataFrame:
@@ -280,7 +329,6 @@ def store_matches_in_db(df: pd.DataFrame, db_path: str = "kicktipp.db"):
     # Create table if it doesn't exist
     create_table_sql = """
     CREATE TABLE IF NOT EXISTS matches (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
         tippsaisonId INTEGER,
         spieltag INTEGER,
         termin TEXT,
@@ -291,14 +339,15 @@ def store_matches_in_db(df: pd.DataFrame, db_path: str = "kicktipp.db"):
         home_points INTEGER,
         draw_points INTEGER,
         away_points INTEGER,
-        xeid TEXT,
+        xeid TEXT UNIQUE,
         odds_home FLOAT,
         odds_draw FLOAT,
         odds_away FLOAT,
         exp_home_points FLOAT,
         exp_draw_points FLOAT,
         exp_away_points FLOAT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (xeid)
     )
     """
     conn.execute(create_table_sql)
@@ -306,7 +355,7 @@ def store_matches_in_db(df: pd.DataFrame, db_path: str = "kicktipp.db"):
     # Insert data from DataFrame
     for _, row in df.iterrows():
         insert_sql = """
-        INSERT INTO matches (
+        INSERT OR REPLACE INTO matches (
             tippsaisonId, spieltag, termin, heim, gast, ergebnis,
             punkteregel, home_points, draw_points, away_points, xeid,
             odds_home, odds_draw, odds_away,
@@ -434,16 +483,19 @@ def pivot_tipps(df: pd.DataFrame) -> pd.DataFrame:
         for member in members:
             points_col = f"{member}_points"
             expected_col = f"{member}_expected"
+            extra_col = f"{member}_extra"
             
             # Sum points and expected points for this member in this matchday
             total_points = group[points_col].sum()
             total_expected = group[expected_col].sum()
+            total_extra = group[extra_col].sum()
             
             pivot_data.append({
                 'spieltag': spieltag,
                 'member': member,
                 'points': total_points,
-                'expected': total_expected
+                'expected': total_expected,
+                'extra': total_extra
             })
     
     # Create DataFrame from pivot data and sort by spieltag and member
@@ -466,7 +518,9 @@ def store_pivot_tipps(df: pd.DataFrame, db_path: str = "kicktipp.db"):
         spieltag INTEGER,
         member TEXT,
         points INTEGER,
-        expected FLOAT
+        expected FLOAT,
+        extra INTEGER,
+        PRIMARY KEY (spieltag, member)
     )
     """
     conn.execute(create_table_sql)
@@ -474,14 +528,15 @@ def store_pivot_tipps(df: pd.DataFrame, db_path: str = "kicktipp.db"):
     # Insert data from DataFrame
     for _, row in df.iterrows():
         insert_sql = """
-        INSERT INTO pivot_tipps (spieltag, member, points, expected)
-        VALUES (?, ?, ?, ?)
+        INSERT OR REPLACE INTO pivot_tipps (spieltag, member, points, expected, extra)
+        VALUES (?, ?, ?, ?, ?)
         """
         values = (
             row['spieltag'],
             row['member'],
             row['points'],
-            row['expected']
+            row['expected'],
+            row['extra']
         )
         conn.execute(insert_sql, values)
     

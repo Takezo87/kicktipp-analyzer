@@ -53,3 +53,41 @@ Added display of point rules and expected points columns to provide more detaile
 
 - Added punkteregel column to match table
 - Added expected points columns (home/draw/away) to match table 
+
+# Bonus Points Calculation
+
+Implemented the extra_punkte function to calculate bonus points based on match predictions:
+- 2 points for exact match result
+- 1 point for correct goal difference
+- 0 points for draws or incorrect predictions 
+
+# Extra Points Integration
+
+Added extra points calculation to match table combination:
+- Added extra points columns for each member
+- Calculates bonus points based on match results and predictions
+- Uses the extra_punkte function to determine points (2 for exact match, 1 for correct difference) 
+
+# Table Styling Improvements
+Improved the visual appearance of tables and navigation with modern styling, better spacing, and subtle visual effects.
+
+- Enhanced table styling with better borders and spacing
+- Added alternating row colors and hover effects
+- Improved section headers and container styling
+- Updated navigation buttons with modern design
+- Added subtle shadows and rounded corners for depth 
+
+# Add Tendenz and Glücksfaktor to Tables
+Added Tendenz and Glücksfaktor columns to the tipps tables with visual indicators for positive and negative values.
+
+- Added Tendenz and Glücksfaktor columns to tipps table
+- Added color coding for positive (green) and negative (red) values
+- Improved table column alignment and spacing
+- Right-aligned numeric columns for better readability 
+
+# Fix Total View Tendenz and Glücksfaktor
+Fixed calculation of Tendenz and Glücksfaktor in the total view to properly show aggregated values.
+
+- Added Tendenz and Glücksfaktor calculation for aggregated data in total view
+- Ensured consistent rounding of values
+- Fixed missing calculations in groupby aggregation 
