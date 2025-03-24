@@ -39,7 +39,7 @@ def extra_punkte(ergebnis: str, tipp: str) -> int:
     Calculate bonus points based on match result and prediction.
     Returns:
         - 2 points for exact match
-        - 1 point for correct goal difference
+        - 1 point for correct goal difference (except for draws)
         - 0 points for draws or incorrect predictions
     """
     if not tipp or not isinstance(tipp, str):
@@ -53,15 +53,12 @@ def extra_punkte(ergebnis: str, tipp: str) -> int:
         # Calculate goal differences
         ergebnis_diff = ergebnis_home - ergebnis_away
         tipp_diff = tipp_home - tipp_away
-        if tipp_diff == 0:
-            return 0
-        
         # Exact match
         if ergebnis_home == tipp_home and ergebnis_away == tipp_away:
             return 2
         
         # Correct goal difference
-        if ergebnis_diff == tipp_diff:
+        if ergebnis_diff == tipp_diff and ergebnis_diff != 0:
             return 1
         
         return 0

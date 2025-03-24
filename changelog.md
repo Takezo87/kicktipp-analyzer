@@ -91,3 +91,11 @@ Fixed calculation of Tendenz and Glücksfaktor in the total view to properly sho
 - Added Tendenz and Glücksfaktor calculation for aggregated data in total view
 - Ensured consistent rounding of values
 - Fixed missing calculations in groupby aggregation 
+
+# Add Column Explanation Section
+Added an explanation section below the tipps table to help users understand the meaning of each column.
+
+- Added explanation section with descriptions for all columns
+- Implemented responsive grid layout for explanations
+- Added visual styling with cards and color coding
+- Included detailed descriptions of points, extra points, expected points, tendency, and luck factor 

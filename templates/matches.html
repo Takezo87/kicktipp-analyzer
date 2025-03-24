@@ -78,8 +78,8 @@
                 <th>Name</th>
                 <th>{% if is_total %}Gesamtpunkte{% else %}Punkte{% endif %}</th>
                 <th>Extra</th>
-                <th>{% if is_total %}Erwartete Punkte{% else %}xPunkte{% endif %}</th>
                 <th>Tendenz</th>
+                <th>{% if is_total %}Erwartete Punkte{% else %}xPunkte{% endif %}</th>
                 <th>Glücksfaktor</th>
             </tr>
         </thead>
@@ -89,17 +89,41 @@
                 <td>{{ tipp.member }}</td>
                 <td>{{ tipp.points }}</td>
                 <td>{{ tipp.extra }}</td>
-                <td>{{ tipp.expected }}</td>
                 <td
                     class="{% if tipp.tendenz > tipp.expected %}positive{% elif tipp.tendenz < tipp.expected %}negative{% endif %}">
                     {{
                     tipp.tendenz }}</td>
+                <td>{{ tipp.expected }}</td>
                 <td class="{% if tipp.gluecksfaktor > 1 %}positive{% elif tipp.gluecksfaktor < 1 %}negative{% endif %}">
                     {{ tipp.gluecksfaktor }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+</div>
+
+<div class="explanation-section">
+    <h4>Erklärung der Spalten</h4>
+    <div class="explanation-grid">
+        <div class="explanation-item">
+            <strong>Punkte:</strong> Tatsächliche Punkte für die Tipps, Tendenz plus Extra-Punkte (ohne Bonus-Fragen)
+        </div>
+        <div class="explanation-item">
+            <strong>Extra:</strong> Extra-Punkte für richtige Tordifferenz und exaktes Ergebnis
+        </div>
+        <div class="explanation-item">
+            <strong>Tendenz:</strong> Punkte aus Tipps auf Tendenz
+        </div>
+        <div class="explanation-item">
+            <strong>xPunkte:</strong> Die theoretisch zu erwartenden (Tendenz-)Punkte basierend auf aus den
+            Wettquoten abgleiteten Wahrscheinlichkeiten
+        </div>
+        <div class="explanation-item">
+            <strong>Glücksfaktor:</strong> Tendenzpunkte geteilt durch erwartete Punkte. Werte über 1 bedeuten
+            tendenziell
+            mehr "Glück" als erwartet, Werte unter 1 bedeuten tendenziell weniger "Glück".
+        </div>
+    </div>
 </div>
 {% endif %}
 
